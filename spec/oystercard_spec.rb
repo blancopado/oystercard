@@ -58,7 +58,6 @@ describe Oystercard do
   end
   describe '#fare' do
    it 'returns the minimum fare' do
-      subject.fare
       expect(subject.fare).to eq described_class::MINIMUM_FARE
    end
   end
