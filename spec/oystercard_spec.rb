@@ -5,6 +5,8 @@ describe Oystercard do
   let(:entry_station) {double :station}
   let(:exit_station) {double :station}
   let(:journey) {{ entry_station: entry_station, exit_station: exit_station }}
+  let(:journey) {double :journey}
+
 
   describe '#initialize' do
     it 'has a default of 0' do
@@ -42,25 +44,33 @@ describe Oystercard do
       expect { subject.touch_in(entry_station) }.to raise_error "Below Minimum Balance!"
     end
 
+    it 'deducts the penalty fare when user doesnt touch out' do
+    	subject.top_up(20)
+    	subject.touch_in(entry_station)
+    	expect {subject.touch_in(entry_station)}.to change{subject.money}.by -Journey::PENALTY_FARE
+    end
+
+
   end
   describe '#touch_out' do
     before(:each) do
-      subject.top_up(1.00)
-      subject.touch_in(entry_station)
-      subject.touch_out(exit_station)
+      subject.top_up(10.00)
+      #subject.touch_in(entry_station)
+      #subject.touch_out(exit_station)
     end
 
     it { is_expected.to respond_to(:touch_out).with(1).argument}
 
     it 'update touch_out method to reduce the balance by minimum fare' do
-      expect {subject.touch_out(exit_station)}.to change{subject.money}.by -described_class::MINIMUM_FARE
+
+      allow(journey).to receive(:fare).and_return(1)
+      subject.touch_in(entry_station)
+      expect {subject.touch_out(exit_station)}.to change{subject.money}.by -Journey::MINIMUM_FARE
     end
+
+
   end
-  describe '#fare' do
-   it 'returns the minimum fare' do
-      expect(subject.fare).to eq described_class::MINIMUM_FARE
-   end
-  end
+
 
 
 end
